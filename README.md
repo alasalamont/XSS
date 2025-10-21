@@ -799,6 +799,39 @@ python3 auto_xss_test.py \
 
 ---
 
+## ⚠️ Disclaimer
+
+**IMPORTANT: READ BEFORE USE**
+
+This tool is designed for **educational purposes** and **authorized security testing only**. By using this framework, you agree to the following terms:
+
+- ✅ **Legal Use Only:** Only test systems you own or have **explicit written permission** to test
+- ✅ **Authorized Testing:** Use only for bug bounties, CTF competitions, or authorized penetration tests
+- ❌ **No Unauthorized Access:** Never use this tool against systems without proper authorization
+- ❌ **No Malicious Intent:** This tool is not intended for malicious activities or illegal purposes
+
+**Legal Responsibility:**
+- The author is **NOT responsible** for any misuse or damage caused by this tool
+- Users are **solely responsible** for their actions and compliance with applicable laws
+- Unauthorized access to computer systems is **illegal** in most jurisdictions
+- Violators may face **criminal prosecution** and civil liability
+
+**Ethical Guidelines:**
+- Always obtain **written permission** before testing
+- Respect scope limitations and rules of engagement
+- Report discovered vulnerabilities responsibly
+- Do not cause harm to systems or data
+
+**By using this tool, you acknowledge that you understand these terms and agree to use it responsibly and legally.**
+
+---
+
+## 👤 Author
+
+**Mont**
+
+---
+
 ## 📄 License
 
 This tool is for **educational and authorized security testing only**.
