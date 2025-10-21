@@ -24,7 +24,7 @@
 
 This framework provides an end-to-end solution for testing **Blind XSS** vulnerabilities:
 
-1. **Generate** thousands of XSS payloads with unique tracking IDs
+1. **Generate** hundreds of XSS payloads with unique tracking IDs
 2. **Listen** for callbacks when payloads execute (even if you don't see the page)
 3. **Automate** testing with headless browser + multi-threading support
 
