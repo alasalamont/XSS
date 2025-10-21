@@ -123,7 +123,7 @@ openssl req -x509 -newkey rsa:4096 -keyout ssl-certs/your-domain.com.key \
 **Usage:**
 ```bash
 # Basic usage
-python3 blind_xss_generate.py --server https://your-server.com --file /x.js
+python3 blind_xss_generate.py --server https://your-server.com --file /hook.js
 
 # Custom output directory
 python3 blind_xss_generate.py \
