@@ -46,15 +46,15 @@ This framework provides an end-to-end solution for testing **Blind XSS** vulnera
 
 ```
 STEP 1: Generate Payloads
--> run blind_xss_generate.py
+-> run 1_blind_xss_generate.py
 
 STEP 2: Start Callback Server
--> run callback_server.py
+-> run 2_callback_server.py
 
 STEP 3: Capture request via burpsuite
 
 STEP 4: Run Automated Testing
--> Run blind_xss_auto_test.py
+-> Run 3_blind_xss_auto_test.py
 
 STEP 5: Monitor
 1. Callback server 
