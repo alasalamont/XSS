@@ -46,9 +46,9 @@ This framework provides an end-to-end solution for testing **Blind XSS** vulnera
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ STEP 1: Generate Payloads                                       │
-│ $ python3 blind_xss_generate.py --server https://your-server   │
-│                                                                  │
-│ Output: wordlists/www_input_payloads.txt (1000+ payloads)       │
+│ $ python3 blind_xss_generate.py --server https://your-server    │
+│                                                                 │
+│ Output: wordlists/www_input_payloads.txt                        │
 │         wordlists/url_payloads.txt                              │
 │         wordlists/json_input_payloads.txt                       │
 └─────────────────────────────────────────────────────────────────┘
