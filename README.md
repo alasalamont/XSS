@@ -62,7 +62,6 @@ STEP 5: Monitor
 ```
 
 ---
----
 
 ## 🛠️ Installation
 
