@@ -8,11 +8,12 @@
 
 - [Overview](#-overview)
 - [Workflow](#-workflow)
+- [Installation](#-installation)
 - [Scripts](#-scripts)
   - [1. blind_xss_generate.py](#1-blind_xss_generatepy)
   - [2. callback_server.py](#2-callback_serverpy)
   - [3. auto_xss_test.py](#3-auto_xss_testpy)
-- [Installation](#-installation)
+
 - [Quick Start](#-quick-start)
 - [Advanced Usage](#-advanced-usage)
 - [How It Works](#-how-it-works)
@@ -61,7 +62,51 @@ STEP 5: Monitor
 ```
 
 ---
+---
 
+## 🛠️ Installation
+
+### Requirements
+- Python 3.6+
+- Firefox browser
+- geckodriver (Firefox WebDriver)
+
+### Install Dependencies
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install -y firefox firefox-geckodriver
+pip3 install selenium
+
+# macOS
+brew install geckodriver
+pip3 install selenium
+
+# Windows
+# Download geckodriver from: https://github.com/mozilla/geckodriver/releases
+# Add to PATH
+pip install selenium
+```
+
+### Setup SSL Certificates (for callback_server.py)
+
+```bash
+# Create ssl-certs directory
+mkdir ssl-certs
+
+# Option 1: Use Let's Encrypt (recommended)
+sudo certbot certonly --standalone -d your-domain.com
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ssl-certs/your-domain.com.cer
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ssl-certs/your-domain.com.key
+
+# Option 2: Self-signed certificate (for testing)
+openssl req -x509 -newkey rsa:4096 -keyout ssl-certs/your-domain.com.key \
+  -out ssl-certs/your-domain.com.cer -days 365 -nodes \
+  -subj "/CN=your-domain.com"
+```
+
+---
 ## 📜 Scripts
 
 ### 1. **blind_xss_generate.py**
@@ -298,52 +343,6 @@ Cookie: session=abc123
 Sorting results by ID...
 ✓ Sorted findings by ID: result/findings.txt
 ```
-
----
-
-## 🛠️ Installation
-
-### Requirements
-- Python 3.6+
-- Firefox browser
-- geckodriver (Firefox WebDriver)
-
-### Install Dependencies
-
-```bash
-# Ubuntu/Debian
-sudo apt-get update
-sudo apt-get install -y firefox firefox-geckodriver
-pip3 install selenium
-
-# macOS
-brew install geckodriver
-pip3 install selenium
-
-# Windows
-# Download geckodriver from: https://github.com/mozilla/geckodriver/releases
-# Add to PATH
-pip install selenium
-```
-
-### Setup SSL Certificates (for callback_server.py)
-
-```bash
-# Create ssl-certs directory
-mkdir ssl-certs
-
-# Option 1: Use Let's Encrypt (recommended)
-sudo certbot certonly --standalone -d your-domain.com
-sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ssl-certs/your-domain.com.cer
-sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ssl-certs/your-domain.com.key
-
-# Option 2: Self-signed certificate (for testing)
-openssl req -x509 -newkey rsa:4096 -keyout ssl-certs/your-domain.com.key \
-  -out ssl-certs/your-domain.com.cer -days 365 -nodes \
-  -subj "/CN=your-domain.com"
-```
-
----
 
 ## 🚀 Quick Start
 
